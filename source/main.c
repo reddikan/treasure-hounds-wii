@@ -244,8 +244,10 @@ static u32 read_input(Input *in)
 
 static void play_sfx(int id, int pitch, float pan, int vol)
 {
-    s32 v = ASND_GetFirstUnusedVoice();
-    if (v < 0 || v == MUSIC_VOICE || v == AMB_VOICE) return;
+    /* voices 0 and 1 belong to the music and the ambience */
+    s32 v = -1;
+    for (s32 k = 2; k < MAX_SND_VOICES; k++) if (ASND_StatusVoice(k) == SND_UNUSED) { v = k; break; }
+    if (v < 0) return;
     int base = audio_volume(id) * vol / 255;
     int vl = (int)((float)base * (pan > 0 ? 1.0f - pan * 0.7f : 1.0f));
     int vr = (int)((float)base * (pan < 0 ? 1.0f + pan * 0.7f : 1.0f));

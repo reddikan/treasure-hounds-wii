@@ -328,9 +328,9 @@ static void draw_ent(const Game *g, const Ent *e)
     case E_BLOCK: spr(&art_spr[SP_BLOCK], x, y, 0, white); return;
     case E_PIPE: {
         const ArtRect *r = &art_spr[SP_BONEPIPE];
-        float sy = 0.6f + (float)e->a * 0.2f;
+        float sy = 0.62f + (float)e->a * 0.12f;
         float vib = e->flash > 0 ? sinf(g->time * 70) * e->flash * 2 : 0;
-        spr_scaled(r, x + vib, y, 1.0f, sy, e->flash > 0 ? RGBA(255, 255, (int)(200 + 55 * (1 - e->flash)), 255) : white, 0);
+        spr_scaled(r, x + vib, y + 2, 1.0f, sy, e->flash > 0 ? RGBA(255, 255, (int)(200 + 55 * (1 - e->flash)), 255) : white, 0);
         return;
     }
     case E_BRAZIER: spr(&art_spr[e->state ? SP_BRAZIER_LIT : SP_BRAZIER], x, y, 0, white); return;

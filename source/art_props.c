@@ -508,13 +508,16 @@ static void block(void)
 }
 static void bonepipe(void)
 {
-    pix_clear(12, 28);
-    R(4, 4, 4, 20, C(0xE0D8C0)); R(4, 4, 1, 20, C(0xFFF8E8)); R(7, 4, 1, 20, C(0xA8A088));
-    E(6, 4, 3.5f, 2.6f, C(0xE8E0C8)); E(6, 4, 1.6f, 1.2f, C(0x2A2020));
-    E(6, 24, 3.5f, 2.2f, C(0xD0C8B0));
-    for (int y = 8; y < 22; y += 5) R(4, y, 4, 1, C(0xB8B098));
+    pix_clear(16, 40);
+    /* a long leg bone standing in a carved stone socket */
+    R(6, 6, 5, 28, C(0xE0D8C0)); R(6, 6, 1, 28, C(0xFFF8E8)); R(10, 6, 1, 28, C(0xA8A088));
+    E(8.5f, 6, 4.5f, 3.2f, C(0xE8E0C8)); E(8.5f, 6, 2.2f, 1.5f, C(0x2A2020));      /* the open end you hear */
+    E(6.5f, 33, 2.6f, 2.4f, C(0xD0C8B0)); E(10.5f, 33, 2.6f, 2.4f, C(0xD0C8B0));   /* knuckle */
+    for (int y = 10; y < 30; y += 6) R(6, y, 5, 1, C(0xB8B098));
+    R(2, 34, 13, 5, C(0x6A6652)); R(2, 34, 13, 1, C(0x9A9478)); R(2, 38, 13, 1, C(0x3A3628));
+    for (int x = 4; x < 14; x += 3) P(x, 36, C(0x4E4A3C));
     pix_outline(OUT);
-    pix_commit(&art_spr[SP_BONEPIPE], 6, 26);
+    pix_commit(&art_spr[SP_BONEPIPE], 8, 38);
 }
 static void darter(void)
 {
@@ -569,15 +572,30 @@ static void statue(void)
 }
 static void mast(void)
 {
-    pix_clear(40, 64);
-    R(18, 4, 5, 58, C(0x6A4A2E)); R(18, 4, 1, 58, C(0x8A6A40)); R(22, 4, 1, 58, C(0x3A2818));
-    R(2, 14, 36, 3, C(0x5A3E26)); R(2, 14, 36, 1, C(0x7A5A3A));
-    for (int y = 17; y < 40; y++) for (int x = 4; x < 36; x++) if (hn(x, y, 5) > 0.08f && (x < 17 || x > 23) && ((y - 17) < 20 - abs(x - 20) / 4)) P(x, y, pmix(C(0xC8BCA0), C(0x9A8E74), hn(x / 3, y / 3, 6)));
-    for (int y = 18; y < 38; y += 6) L(4, y, 36, y + 1, CA(0x6A5E48, 160));
-    R(15, 2, 11, 3, C(0x3A2818));
-    L(20, 4, 2, 60, CA(0x8A7A5A, 220)); L(20, 4, 38, 60, CA(0x8A7A5A, 220));
+    pix_clear(48, 70);
+    /* mast and yard */
+    R(22, 2, 5, 66, C(0x6A4A2E)); R(22, 2, 1, 66, C(0x8A6A40)); R(26, 2, 1, 66, C(0x3A2818));
+    R(4, 12, 40, 3, C(0x5A3E26)); R(4, 12, 40, 1, C(0x7A5A3A));
+    /* a black, tattered sail hanging from the yard */
+    for (int y = 15; y < 46; y++)
+        for (int x = 6; x < 42; x++) {
+            float belly = sinf((float)(y - 15) / 31.0f * 3.14159f) * 3.0f;
+            int left = 6 + (int)(belly * 0.4f), right = 41 - (int)(belly * 0.4f);
+            if (x < left || x > right) continue;
+            int rag = y > 38 && hn(x / 2, 0, 41) > 0.45f && y > 38 + (int)(hn(x, 1, 41) * 7);
+            if (rag || (hn(x / 3, y / 3, 43) > 0.93f)) continue;               /* holes and a ragged hem */
+            float shade = 0.85f + 0.25f * sinf(((float)x - 6) / 35.0f * 3.14159f);
+            uint32_t c = pmix(C(0x1E1A20), C(0x34303A), hn(x, y / 2, 47) * 0.4f);
+            P(x, y, pdark(c, shade));
+        }
+    /* the skull and crossbones on it */
+    E(24, 27, 6, 5.5f, C(0xE8E0D0)); R(21, 31, 7, 3, C(0xE8E0D0));
+    E(21.5f, 27, 1.6f, 1.8f, C(0x1E1A20)); E(26.5f, 27, 1.6f, 1.8f, C(0x1E1A20)); P(24, 30, C(0x1E1A20));
+    Ld(15, 34, 33, 41, 1.6f, C(0xE8E0D0)); Ld(33, 34, 15, 41, 1.6f, C(0xE8E0D0));
+    R(19, 0, 11, 3, C(0x3A2818));                                   /* crow's nest */
+    L(24, 3, 2, 68, CA(0x8A7A5A, 200)); L(24, 3, 46, 68, CA(0x8A7A5A, 200));
     pix_outline(OUT);
-    pix_commit(&art_spr[SP_MAST], 20, 62);
+    pix_commit(&art_spr[SP_MAST], 24, 68);
     pix_clear(20, 20);                                     /* ship's wheel */
     for (int k = 0; k < 8; k++) { float a = (float)k * 0.785f; Ld(10, 10, 10 + cosf(a) * 9, 10 + sinf(a) * 9, 1.2f, C(0x8A6438)); }
     for (int k = 0; k < 32; k++) { float a = (float)k * 0.196f; P((int)(10 + cosf(a) * 6.5f), (int)(10 + sinf(a) * 6.5f), C(0x6A4428)); P((int)(10 + cosf(a) * 5.5f), (int)(10 + sinf(a) * 5.5f), C(0x9A7444)); }

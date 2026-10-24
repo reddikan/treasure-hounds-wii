@@ -159,18 +159,23 @@ static void slab(int v, int moss)
     uint32_t s = 700 + v + moss * 13;
     for (int y = 0; y < 16; y++)
         for (int x = 0; x < 16; x++) {
-            float n = wn(x, y, 8, s) * 0.5f + hn(x, y, s) * 0.5f;
-            uint32_t c = pmix(C(0x6A6656), C(0x7E7866), n);
-            int bx = x % 8, by = y % 8, blk = (x / 8) + (y / 8) * 2;
-            if (v & 1) { bx = x; by = y % 8; blk = y / 8; }
-            if (bx == 0 || by == 0) c = C(0x8A8470);
-            if ((v & 1) ? (by == 7) : (bx == 7 || by == 7)) c = C(0x3E3A32);
-            if ((v & 1) && (x == 15)) c = C(0x3E3A32);
-            c = pdark(c, 0.95f + 0.1f * hn(blk, 0, s));
+            /* worn flagstones: 2x2 per tile, or one long slab across two rows */
+            int bx = x % 8, by = y % 8, blk = (x / 8) + (y / 8) * 2, bw = 8;
+            if (v == 1) { bx = x; by = y % 8; blk = y / 8; bw = 16; }
+            float tone = 0.84f + 0.3f * hn(blk, v, s);
+            float n = wn(x, y, 4, s) * 0.5f + hn(x, y, s) * 0.5f;
+            uint32_t c = pdark(pmix(C(0x6E6A58), C(0x827C68), n), tone);
+            if (bx == 0 || by == 0) c = pdark(c, 1.18f);                       /* lit upper-left bevel */
+            if (by == 7 || bx == bw - 1) c = C(0x34302A);                     /* joint */
+            if ((by == 6 || bx == bw - 2) && by != 7 && bx != bw - 1) c = pdark(c, 0.86f);
             if (moss && wn(x, y, 8, s + 5) > 0.55f) c = pmix(c, (hn(x, y, s + 6) > 0.5f) ? C(0x4E6A2E) : C(0x3E5824), 0.75f);
+            if (!moss && (by == 7 || bx == bw - 1) && hn(x, y, s + 9) > 0.7f) c = C(0x3A4A26);   /* moss in the joints */
             P(x, y, c);
         }
-    if (v == 2) { PW(3, 9, C(0x2E2A24)); PW(4, 10, C(0x2E2A24)); PW(5, 10, C(0x2E2A24)); PW(6, 11, C(0x2E2A24)); }
+    if (v == 2) { PW(3, 9, C(0x2A2620)); PW(4, 10, C(0x2A2620)); PW(5, 10, C(0x2A2620)); PW(6, 11, C(0x2A2620)); PW(5, 11, C(0x2A2620)); }
+    if (v == 3 && !moss) {                                                   /* a carved spiral */
+        for (int k = 0; k < 18; k++) { float a = (float)k * 0.6f, r = 0.5f + (float)k * 0.17f; PW(4 + (int)(cosf(a) * r), 4 + (int)(sinf(a) * r), C(0x4A463A)); }
+    }
 }
 
 /* ---- liquids (4 animation frames) ---- */

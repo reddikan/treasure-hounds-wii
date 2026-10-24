@@ -344,6 +344,7 @@ static void shots(void)
     /* the story */
     press(BTN_A); step(30, 0);
     shot("story");
+    for (int p = 1; p < NSTORY; p++) { press(BTN_A); step(30, 0); char nm[16]; snprintf(nm, sizeof nm, "story%d", p); shot(nm); }
     for (int lvl = 0; lvl < 4; lvl++) {
         start_level(lvl);
         char nm[64];
@@ -608,6 +609,49 @@ static void anim(void)
     kid_say(G, CH_ROCCO, "Hey Ollie, why'd the pirate go to school?", 0); step(10, 0); shot("anim_bubble");
 }
 
+/* a short scripted tour for a preview video */
+static int tour_frame;
+static void tour_shot(void)
+{
+    char nm[600];
+    snprintf(nm, sizeof nm, "reel/f%04d", tour_frame++);
+    game_render(G); raster(); save_ppm(nm);
+}
+static void tour_walk(float tx, float ty, int frames, int whip_every)
+{
+    for (int f = 0; f < frames; f++) {
+        Kid *l = &G->kid[G->order[0]];
+        float dx = tx * TS - l->x, dy = ty * TS - l->y, d = sqrtf(dx * dx + dy * dy);
+        Input in = none;
+        if (d > 3) { in.sx = dx / d; in.sy = dy / d; }
+        if (whip_every && f % whip_every == whip_every / 2) in.pressed = in.held = BTN_B;
+        game_update(G, &in, 1.0f / 60.0f);
+        in.pressed = 0;
+        game_update(G, &in, 1.0f / 60.0f);
+        int p, v; float pan; while (game_pop_sound(G, &p, &pan, &v) >= 0) {}
+        if (G->state == ST_DIALOG) { for (int k = 0; k < 400 && G->state == ST_DIALOG; k++) { press(BTN_A); step(2, 0); } }
+        tour_shot();
+    }
+}
+static void tour(void)
+{
+    game_init(G);
+    for (int f = 0; f < 90; f++) { step(2, 0); tour_shot(); }
+    start_level(0); place(9, 43); skip_dialog();
+    tour_walk(22, 44, 80, 0);
+    kid_say(G, CH_ROCCO, "Hey Ollie, why'd the pirate go to school?", 0);
+    tour_walk(29, 38, 90, 0);
+    tour_walk(34, 30, 70, 30);
+    start_level(1); place(26, 20); skip_dialog();
+    tour_walk(27, 31, 100, 40);
+    start_level(2); place(42, 40); skip_dialog();
+    tour_walk(42, 30, 90, 0);
+    tour_walk(62, 33, 90, 35);
+    start_level(3); place(18, 33); skip_dialog();
+    G->flash_t = 1.0f;
+    tour_walk(30, 32, 120, 45);
+}
+
 static void reel(int lvl)
 {
     char dir[512];
@@ -648,6 +692,7 @@ int main(int argc, char **argv)
     if (all || !strcmp(what, "walk")) walk_tests();
     if (all || !strcmp(what, "perf")) perf();
     if (!strcmp(what, "anim")) anim();
+    if (!strcmp(what, "tour")) tour();
     if (!strcmp(what, "reel")) reel(argc > 3 ? atoi(argv[3]) - 1 : 0);
     printf(fails ? "\n%d FAILURES\n" : "\nall checks passed\n", fails);
     return fails ? 1 : 0;

@@ -221,6 +221,7 @@ def level2():
     # 1. landing chamber under the grate
     room(8, 7, 6, 4.5)
     m.put(7, 5, '/')
+    m.put(7, 4, 'G')                                    # the ladder down from the grate
     m.put(4, 8, 'u'); m.put(11, 9, 'u'); m.put(12, 5, 'a'); m.put(3, 6, 'a')
     m.put(10, 9, 'C')
     # 2. the wishing well chamber (coins rain down the old town well shaft)
@@ -451,6 +452,8 @@ def level4():
     m.rect(2, 4, 9, 18, '#'); m.rect(10, 4, 20, 8, '#')
     m.rect(4, 19, 7, 21, '.')
     m.put(5, 20, '/')
+    m.rect(4, 15, 6, 17, ' ')                           # the dark mouth of the temple tunnel
+    m.put(4, 21, 'x'); m.put(7, 19, 'X')
     m.rect(3, 19, 3, 23, '#')
     # jungle edge along the top
     m.scatter(10, 9, 50, 13, 'P', 0.10, on='.')
@@ -464,6 +467,10 @@ def level4():
     m.scatter(8, 26, 50, 39, 'o', 0.02, on='.,')
     m.put(11, 27, '7'); m.put(26, 37, '7'); m.put(40, 36, '7'); m.put(33, 34, '7')
     m.put(23, 27, '$'); m.put(31, 29, '$'); m.put(10, 32, '4'); m.put(13, 37, '3')
+    for (x, y) in [(9, 35), (27, 36), (35, 33), (42, 35), (16, 38)]: m.put(x, y, '%')
+    for (x, y) in [(20, 28), (29, 24), (11, 25), (38, 30)]: m.put(x, y, 'q')
+    for (x, y) in [(45, 30), (47, 33), (24, 33)]: m.put(x, y, '*')
+    m.put(33, 31, 'B'); m.put(34, 31, 'C'); m.put(7, 28, 'C'); m.put(46, 27, 'c')
     # the Crowleys' camp
     m.rect(34, 17, 46, 25, ',')
     m.put(40, 21, 'F'); m.put(37, 19, 'n'); m.put(43, 23, 'n'); m.put(36, 23, 'B'); m.put(44, 18, 'C')

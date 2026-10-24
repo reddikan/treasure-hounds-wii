@@ -870,6 +870,13 @@ void ents_update(Game *g, float dt)
                 if (p) { p->vy = -18 - frand(g) * 14; p->vx = frand2(g) * 8 + g->wind * 6; p->life = p->max = 0.9f + frand(g) * 0.7f; p->add = 1; }
             }
             break;
+        case E_SHACK:
+            if (active && frand(g) < dt * 4) {                 /* chimney smoke, bent by the wind */
+                Part *p = part_new(g, PK_SMOKE, e->x + 21 + frand2(g) * 2, e->y - 60);
+                p->c = 0x50505870u; p->vy = -10 - frand(g) * 6; p->vx = 8 + g->wind * 14;
+                p->size = 3; p->life = p->max = 2.0f + frand(g);
+            }
+            break;
         case E_CRYSTAL: case E_MUSHROOM: case E_GOLDPILE:
             if (active && frand(g) < dt * 1.2f) {
                 Part *p = part_new(g, PK_MOTE, e->x + frand2(g) * 8, e->y - 6 - frand(g) * 8);

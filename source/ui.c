@@ -287,23 +287,54 @@ void render_title(const Game *g)
     gfx_text_s("v1.0", 8, VH - 14, 1, 0x8A8070FFu);
 }
 
+static void spr_ui(const ArtRect *r, float cx, float by, float s, uint32_t c, int flip)
+{
+    gfx_img(cx - (float)r->ax * s, by - (float)r->ay * s, r->w * s, r->h * s, r->x, r->y, r->w, r->h, c, flip);
+}
+
 void render_story(const Game *g)
 {
     gfx_rect_v(0, 0, VW, VH, 0x0A0814FFu, 0x020206FFu);
-    gfx_blend(BL_ADD);
-    for (int i = 0; i < 40; i++) {
-        float x = fmodf((float)(i * 97) + g->time * 6.0f * (float)(1 + i % 3), VW), y = fmodf((float)(i * 53) + sinf((float)i) * 40, VH);
-        gfx_glow(x, y, 2 + (float)(i % 3), RGBA(255, 220, 160, 40));
-    }
-    gfx_blend(BL_ALPHA);
     float a = clampf(g->st_t * 2.0f, 0, 1);
-    float w = 640, h = 220, x = (VW - w) * 0.5f, y = (VH - h) * 0.5f - 10;
+    uint32_t wa = col_a(0xFFFFFFFFu, a);
+    float cx = VW * 0.5f, base = 214;
+    /* a little picture for each page */
+    gfx_blend(BL_ADD);
+    gfx_glow(cx, base - 50, 150, RGBA(255, 190, 110, (int)(40 * a)));
+    gfx_blend(BL_ALPHA);
+    switch (g->story_page) {
+    case 0:
+        spr_ui(&art_spr[SP_LIGHTHOUSE], cx, base, 1.5f, wa, 0);
+        spr_ui(&art_spr[SP_PINE], cx - 110, base, 2, wa, 0); spr_ui(&art_spr[SP_PINE], cx + 120, base, 2, wa, 1);
+        break;
+    case 1:
+        spr_ui(&art_spr[SP_SHACK], cx, base - 6, 2, wa, 0);
+        for (int i = 0; i < 4; i++) spr_ui(&art_char[i][DIR_DOWN][((int)(g->time * 2 + i) & 1) ? FR_IDLE2 : FR_IDLE], cx - 66 + (float)i * 44, base + 4, 3, wa, 0);
+        break;
+    case 2:
+        spr_ui(&art_spr[SP_SHACK], cx - 90, base - 10, 1.6f, col_a(0x9090A0FFu, a), 0);
+        spr_ui(&art_spr[SP_SIGN], cx + 100, base, 4, wa, 0);
+        gfx_text_c("SOLD", cx + 100, base - 52, 2, RGBA(160, 30, 20, (int)(255 * a)));
+        break;
+    case 3:
+        spr_ui(&art_spr[SP_GOLDPILE], cx, base, 4, wa, 0);
+        for (int i = 0; i < 7; i++) {
+            float x = cx - 120 + (float)i * 40, y = base - 120 + fmodf(g->time * 60 + (float)(i * 37), 110);
+            spr_ui(&art_item[IT_COIN + (((int)(g->time * 8) + i) & 3)], x, y, 3, wa, 0);
+        }
+        break;
+    default:
+        gfx_img(cx - 64, base - 140, 128, 128, art_face[FACE_SKULL][0].x, art_face[FACE_SKULL][0].y, 32, 32, wa, 0);
+        spr_ui(&art_item[IT_MAP], cx + 120, base - 20, 5, wa, 0);
+        spr_ui(&art_item[IT_SKULLKEY], cx - 130, base - 30, 4, wa, 0);
+        break;
+    }
+    float w = 660, h = 170, x = (VW - w) * 0.5f, y = 240;
     parch(x, y, w, h, a);
     const char *s = STORY_PAGES[g->story_page];
     int lines = 1;
     for (const char *p = s; *p; p++) if (*p == '\n') lines++;
-    gfx_text(s, x + 40, y + h * 0.5f - (float)lines * 12, 2, RGBA(58, 30, 12, (int)(255 * a)));
-    /* page dots */
+    gfx_text_c(s, VW * 0.5f, y + h * 0.5f - (float)lines * 12 + 2, 2, RGBA(58, 30, 12, (int)(255 * a)));
     for (int i = 0; i < NSTORY; i++) gfx_ellipse(VW * 0.5f - (float)(NSTORY - 1) * 9 + (float)i * 18, y + h + 22, 4, 4, 8, i == g->story_page ? 0xFFD860FFu : 0x5A4A3AFFu, i == g->story_page ? 0xFFD860FFu : 0x5A4A3AFFu);
     gfx_text_sc(ICON_A " next    " ICON_B " skip", VW * 0.5f, VH - 30, 1, 0xA89880FFu);
 }

@@ -255,7 +255,9 @@ static void draw_text(const char *s, float x, float y, float px, uint32_t c, int
         }
         if (ch < 128 && art_font[ch].w) {
             const ArtGlyph *g = &art_font[ch];
-            uint32_t cc = hi ? ((HILITE & 0xFFFFFF00u) | a) : c;
+            /* highlight: gold on dark backgrounds, deep red on parchment */
+            int lum = (int)(c >> 24) + (int)((c >> 16) & 255) + (int)((c >> 8) & 255);
+            uint32_t cc = hi ? (((lum < 300 ? 0xB02818FFu : HILITE) & 0xFFFFFF00u) | a) : c;
             gfx_img(cx, cy + yo, (float)g->w * px, 9.0f * px, g->x, g->y, g->w, 9, cc, 0);
         }
         cx += glyph_adv(ch) * px;

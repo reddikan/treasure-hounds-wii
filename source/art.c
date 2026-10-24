@@ -5,7 +5,7 @@
 #include <string.h>
 
 uint32_t cv[CVW * CVH];
-int cvw, cvh;
+int cvw, cvh = CVH;
 
 ArtRect  art_tile[TA_COUNT][4];
 ArtRect  art_char[CH_COUNT][3][FR_COUNT];
@@ -46,8 +46,11 @@ float pnoise(float x, float y, int cell, int per, uint32_t seed)
 
 void pix_clear(int w, int h)
 {
+    /* only the rows the last drawing and this one use */
+    int rows = (h > cvh ? h : cvh) + 2;
+    if (rows > CVH) rows = CVH;
+    memset(cv, 0, sizeof(uint32_t) * CVW * (size_t)rows);
     cvw = w; cvh = h;
-    memset(cv, 0, sizeof(cv));
 }
 uint32_t G(int x, int y)
 {
@@ -101,9 +104,10 @@ void Ld(float x0, float y0, float x1, float y1, float w, uint32_t c)
     }
 }
 static uint32_t tmp[CVW * CVH];
+static void snapshot(void) { memcpy(tmp, cv, sizeof(uint32_t) * CVW * (size_t)(cvh < CVH ? cvh + 1 : CVH)); }
 void pix_outline(uint32_t c)
 {
-    memcpy(tmp, cv, sizeof(cv));
+    snapshot();
     for (int y = 0; y < cvh; y++)
         for (int x = 0; x < cvw; x++) {
             if ((tmp[y * CVW + x] & 255) > 40) continue;
@@ -118,7 +122,7 @@ void pix_outline(uint32_t c)
 }
 void pix_outline_soft(uint32_t c)
 {
-    memcpy(tmp, cv, sizeof(cv));
+    snapshot();
     for (int y = 0; y < cvh; y++)
         for (int x = 0; x < cvw; x++) {
             if ((tmp[y * CVW + x] & 255) > 40) continue;
@@ -133,7 +137,7 @@ void pix_outline_soft(uint32_t c)
 }
 void pix_shade_rim(uint32_t hi, int dx, int dy)
 {
-    memcpy(tmp, cv, sizeof(cv));
+    snapshot();
     for (int y = 0; y < cvh; y++)
         for (int x = 0; x < cvw; x++) {
             uint32_t p = tmp[y * CVW + x];

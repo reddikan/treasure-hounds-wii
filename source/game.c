@@ -66,8 +66,13 @@ static void title_setup(Game *g)
     g->state = ST_TITLE;
     g->menu = 0;
     g->title_t = 0;
-    /* hide the kids off by the edge; frame the lighthouse */
-    for (int i = 0; i < NKIDS; i++) { g->kid[i].x = -200; g->kid[i].y = -200; }
+    /* the four Hounds stand on the cliff path, looking up at the lighthouse */
+    for (int i = 0; i < NKIDS; i++) {
+        Kid *k = &g->kid[i];
+        k->x = (float)(59 * TS + 4) + (float)i * 15.0f; k->y = (float)(13 * TS + 12) + (float)((i * 5) % 3);
+        k->dir = DIR_UP; k->frame = FR_IDLE; k->state = KS_FOLLOW; k->bubble_t = 0;
+    }
+    g->order[0] = CH_SAM; g->order[1] = CH_ROCCO; g->order[2] = CH_GUS; g->order[3] = CH_OLLIE;
     g->camx = 49 * TS - VIEW_W * 0.5f; g->camy = 6 * TS - VIEW_H * 0.5f + 40;
 }
 
@@ -77,7 +82,7 @@ static void begin_level(Game *g, int lvl)
     g->state = ST_CHAPTER;
     g->st_t = 0;
     g->lvl_coins = 0; g->lvl_doubloons = 0;
-    g->gears = 0; g->crane_done = 0; g->organ_pos = 0; g->braziers_lit = 0;
+    g->gears = 0; g->crane_done = lvl > 0; g->organ_pos = 0; g->braziers_lit = 0;   /* (the grate you climb down stays open) */
     g->boss_phase = 0; g->boss_down = 0; g->collapse_t = 0;
     memset(g->gate_open, 0, sizeof(g->gate_open));
     memset(g->trig_done, 0, sizeof(g->trig_done));
@@ -275,6 +280,12 @@ void game_update(Game *g, const Input *in, float dt)
         parts_update(g, dt);
         lights_collect(g);
         g->camx = 49 * TS - VIEW_W * 0.5f + sinf(g->title_t * 0.12f) * 40;
+        for (int i = 0; i < NKIDS; i++) {               /* idle fidgets */
+            Kid *k = &g->kid[i];
+            k->anim += dt * 1.4f;
+            k->frame = (((int)(k->anim + (float)i * 0.7f)) & 1) ? FR_IDLE2 : FR_IDLE;
+            if (fmodf(g->title_t + (float)i * 2.3f, 9.0f) < 1.2f) { k->dir = DIR_DOWN; } else k->dir = DIR_UP;
+        }
         menu_move(g, in, 4);
         int lr = menu_lr(in);
         if (g->menu == 1 && lr) { g->chapter_pick = (g->chapter_pick + NUM_LEVELS + lr) % NUM_LEVELS; sfx(g, SFX_MENU, 150, 0, 120); }

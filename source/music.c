@@ -24,7 +24,7 @@ static float BEAT;               /* seconds per beat */
 static uint32_t rng = 0xC0FFEEu;
 static float sintab[4097];
 
-static const uint8_t VOL[MUS_TRACKS] = { 150, 140, 150, 145, 160, 150 };
+static const uint8_t VOL[MUS_TRACKS] = { 200, 140, 155, 150, 195, 155 };
 
 static float frnd(void) { rng = rng * 1664525u + 1013904223u; return (float)(rng >> 8) / 8388608.0f - 1.0f; }
 static float mtof(float m) { return 440.0f * powf(2.0f, (m - 69.0f) / 12.0f); }
@@ -252,7 +252,7 @@ static void shaker(float b, float v)
         float w = frnd();
         hp = 0.7f * (hp + w - prev); prev = w;
         float e = (float)i < 0.01f * SR ? (float)i / (0.01f * SR) : expf(-((float)i - 0.01f * SR) / (0.025f * SR));
-        put(s0 + i, hp * e * v * 0.12f);
+        put(s0 + i, hp * e * v * 0.08f);
     }
 }
 static void cymbal(float b, float v, float len)
@@ -263,7 +263,7 @@ static void cymbal(float b, float v, float len)
         float w = frnd();
         hp = 0.92f * (hp + w - prev); prev = w;
         float t = (float)i / (float)n;
-        put(s0 + i, hp * (1 - t) * (1 - t) * v * 0.16f);
+        put(s0 + i, hp * (1 - t) * (1 - t) * v * 0.07f);
     }
 }
 static void swell(float b, float v, float len)          /* reverse cymbal into a downbeat */
@@ -274,7 +274,7 @@ static void swell(float b, float v, float len)          /* reverse cymbal into a
         float w = frnd();
         hp = 0.92f * (hp + w - prev); prev = w;
         float t = (float)i / (float)n;
-        put(s0 + i, hp * t * t * v * 0.12f);
+        put(s0 + i, hp * t * t * v * 0.06f);
     }
 }
 
