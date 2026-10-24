@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<app version="1">
+  <name>Treasure Hounds</name>
+  <coder>Claude</coder>
+  <version>1.0</version>
+  <release_date>20261024000000</release_date>
+  <short_description>A stormy pirate-treasure adventure (Classic Controller)</short_description>
+  <long_description>Four best friends, one pirate map, and one weekend to save their neighborhood.
+
+Sam, Rocco, Gus and Ollie follow Grandpa's map to the lost gold of Ironjaw Jack: through a storm-lashed fishing town, the old smugglers' caves, a booby-trapped temple of bones, and out to Skeleton Cove where his ship still waits. Outsmart traps and the bumbling Crowley gang with nothing but a whip, a lantern and each other.
+
+Hounds stick together!
+
+Controls (Classic Controller):
+Left stick / D-Pad: walk
+Y (hold): run
+B: crack the whip
+A: talk, read, use, next line
+L / R: choose who leads (tired Hounds catch their breath at the back)
+X: map
++: pause (music / sound on-off)
+-: 16:9 / 4:3 screen
+HOME: exit</long_description>
+</app>
