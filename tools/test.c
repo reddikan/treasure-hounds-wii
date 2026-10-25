@@ -185,6 +185,8 @@ static void flood(Game *g, int sx, int sy)
             int kk = g->lv.k[ny][nx];
             if (KINFO[kk].solid && kk != K_VOID) continue;
             if (kk == K_VOID) continue;
+            /* props in the way count too (gates, crates, bushes and push-blocks are treated as cleared) */
+            if (blocked(g, (float)(nx * TS + 8), (float)(ny * TS + 10), 4.0f, -1)) continue;
             reach[ny][nx] = 1;
             qx[t] = nx; qy[t] = ny; t++;
         }
@@ -201,6 +203,14 @@ static void check_level(int lvl)
     /* hooks: the swing joins two areas; treat every landing as reachable from its hook */
     const Kid *l = &g->kid[g->order[0]];
     int sx = (int)(l->x / TS), sy = (int)((l->y - 2) / TS);
+    /* open every gate, break every breakable and lift the push-blocks for the reachability test */
+    uint8_t saved_state[MAX_ENT]; uint8_t saved_on[MAX_ENT];
+    for (int i = 0; i < g->nent; i++) {
+        saved_state[i] = g->ent[i].state; saved_on[i] = g->ent[i].on;
+        int t = g->ent[i].type;
+        if (t == E_GATE || (EINFO[t].flags & EF_BREAK)) g->ent[i].state = 1;
+        if (t == E_BLOCK || t == E_CAGE || t == E_TINY) g->ent[i].on = 0;
+    }
     flood(g, sx, sy);
     for (int pass = 0; pass < 4; pass++) {
         for (int i = 0; i < ld->nhook; i++) {
@@ -219,6 +229,7 @@ static void check_level(int lvl)
             }
         }
     }
+    for (int i = 0; i < g->nent; i++) { g->ent[i].state = saved_state[i]; g->ent[i].on = saved_on[i]; }
     int counts[E_COUNT] = { 0 }, unreach[E_COUNT] = { 0 };
     for (int i = 0; i < g->nent; i++) {
         Ent *e = &g->ent[i];
@@ -373,6 +384,7 @@ static void shots(void)
     start_level(2);
     place(42, 39); skip_dialog(); step(20, 0); shot("l3_court");
     place(42, 18); skip_dialog(); step(20, 0); shot("l3_organ");
+    place(41, 12); skip_dialog(); step(20, 0); shot("l3_organ_door");
     G->gate_open[1] = 1; place(41, 7); skip_dialog(); step(20, 0); shot("l3_vault");
     place(66, 33); skip_dialog(); step(80, 0); shot("l3_flames");
     /* L4 */
@@ -542,7 +554,14 @@ static void walk_tests(void)
         skip_dialog();
         CHECK(gate_for(COND_ORGAN) == 1 && gate_ent_open(COND_ORGAN) == 1, "L3 organ solved (pos %d)", g->organ_pos);
         Ent *key = find_ent(E_SKULLKEY, 0);
-        place(key->x / TS - 0.5f, key->y / TS - 1.2f);
+        float kx = key->x, ky = key->y;
+        /* walk there for real: up the middle of the organ room, through the vault door, to the key */
+        place(41.5f, 13);
+        skip_dialog();
+        walk_to(41.5f * TS + 8, 9 * TS + 4, 400);
+        walk_to(kx, ky, 400);
+        CHECK(g->has_key, "L3 walked from the organ to the key (leader at %.1f,%.1f)", g->kid[g->order[0]].x / TS, g->kid[g->order[0]].y / TS);
+        if (!g->has_key) { place(kx / TS - 0.5f, ky / TS - 1.2f); }
         step(20, 0);
         CHECK(g->has_key, "L3 got the key");
         skip_dialog();

@@ -6,7 +6,7 @@ Each level is drawn with a few helpers (rects, blobs, paths, scatter) instead of
 then written to source/maps.c together with its triggers, puzzle groups, signs and hooks.
 Run:  python3 tools/maps/make_maps.py      (also writes tools/out/map_N.png previews)
 """
-import math, random, os, sys
+import math, random, os, sys, zlib
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
 
@@ -15,7 +15,7 @@ class Map:
         s.name, s.sub, s.w, s.h, s.theme = name, sub, w, h, theme
         s.g = [[fill] * w for _ in range(h)]
         s.trig, s.group, s.sign, s.pipe, s.organ, s.hook, s.boul = [], [], [], [], [], [], []
-        s.rng = random.Random(hash(name) & 0xFFFF)
+        s.rng = random.Random(zlib.crc32(name.encode()))   # stable across runs
 
     def ok(s, x, y): return 0 <= x < s.w and 0 <= y < s.h
     def get(s, x, y): return s.g[y][x] if s.ok(x, y) else '#'
@@ -384,7 +384,7 @@ def level3():
     m.rect(32, 10, 52, 22, '.')
     m.box(31, 8, 53, 23, '#', top=2)
     m.rect(41, 23, 42, 23, '.')
-    m.signp(42, 10, 'E', "PLAY THE SONG OF THE BONES")   # the tune carving
+    m.signp(36, 10, 'E', "PLAY THE SONG OF THE BONES")   # the tune carving, left of the vault door
     notes = [4, 1, 3, 0, 2]                              # heights of the pipes left -> right
     for i, nt in enumerate(notes):
         m.put(35 + i * 4, 15, '|'); m.pipe.append(nt)
