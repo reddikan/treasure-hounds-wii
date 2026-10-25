@@ -427,8 +427,23 @@ static void push_block(Ent *b, int dx, int dy, int n)
     }
 }
 
+static void hint_test(void)
+{
+    start_level(2);
+    Ent *gt = 0;
+    for (int i = 0; i < G->nent; i++) if (G->ent[i].on && G->ent[i].type == E_GATE && G->ent[i].x > 70 * TS) gt = &G->ent[i];
+    place(gt->x / TS - 1.0f, gt->y / TS - 1.6f);
+    skip_dialog();
+    G->kid[G->order[0]].dir = DIR_DOWN; G->lead_dir = DIR_DOWN;
+    press(BTN_A); step(200, 0);
+    printf("  fire-room gate hint: %s\n", G->wrap);
+    CHECK(strstr(G->wrap, "Skull") != 0, "fire room gate gives the key hint");
+    skip_dialog();
+}
+
 static void walk_tests(void)
 {
+    hint_test();
     printf("scripted runs:\n");
     /* L1: grab all three gears, use the crane, exit */
     start_level(0);

@@ -242,6 +242,7 @@ static const Line l3_blocks_done[] = {
 static const Line l3_flames[] = {
     L_(OLL, X, "Fire, skeletons, and more fire. Did I mention the fire?"),
     L_(GUS, N, "The jets glow right before they burst. Watch for the glow!"),
+    L_(SAM, N, "That gate on the far side looks like a way out. And is that a lever on the wall?"),
     L_(ROC, N, "Skeletons with swords. This is the WORST field trip ever."),
     END
 };
@@ -355,7 +356,7 @@ static const Line exit_l3[] = {
     L_(SAM, H, "Daylight! ...Well, lightning-light!"),
     LA(NARR, N, ACT_LEVEL_DONE, ""), END
 };
-static const Line gate_locked[] = { L_(GUS, N, "It won't budge. There must be a way to open it."), END };
+static const Line gate_locked[] = { L_(GUS, N, "%H"), END };
 static const Line sign_line[] = { L_(NARR, N, "%S"), END };
 static const Line carving_line[] = { L_(SPK_SIGN, N, "%S"), END };
 static const Line organ_wrong[] = { L_(ROC, X, "Wrong note! DARTS! I TOLD you it'd be darts!"), END };

@@ -15,6 +15,22 @@ static void prepare_line(Game *g)
     int n = 0;
     for (const char *p = src; *p && n < (int)sizeof(tmp) - 1; p++) {
         if (p[0] == '%' && p[1] == 'G') { n += snprintf(tmp + n, sizeof(tmp) - (size_t)n, "%d", g->gears); p++; continue; }
+        if (p[0] == '%' && p[1] == 'H') {           /* the hint for a locked gate */
+            static const char *const HINT[] = {
+                [COND_NONE] = "It won't budge. There must be a way to open it somewhere.",
+                [COND_PLATES] = "It's linked to those floor plates. Every plate has to be pressed down at once!",
+                [COND_BRAZIERS] = "Four fires to wake the door. Walk up to each brazier and press \x01 to light it with the lantern!",
+                [COND_LEVER] = "There's no handle on this side. Bet there's a lever somewhere... maybe crack the whip at it?",
+                [COND_ORGAN] = "This one's tied to the bone organ. Crack the pipes in the order the carving on the wall shows!",
+                [COND_GEARS] = "It needs gears.",
+                [COND_KEY] = "This is the way out... but it won't open until we grab the Skull Key. Find the organ room first!",
+                [COND_BOSS] = "It's stuck.",
+            };
+            int c = g->scene_after;
+            if (c < 0 || c > COND_BOSS) c = COND_NONE;
+            n += snprintf(tmp + n, sizeof(tmp) - (size_t)n, "%s", HINT[c]);
+            p++; continue;
+        }
         if (p[0] == '%' && p[1] == 'S') {
             const char *s = (g->scene_after >= 0 && g->scene_after < g->ld->nsign) ? g->ld->sign[g->scene_after] : "";
             n += snprintf(tmp + n, sizeof(tmp) - (size_t)n, "%s", s);

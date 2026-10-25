@@ -392,10 +392,15 @@ int ents_use(Game *g, float x, float y, int dir)
         }
         if (e->type == E_TINY) { kid_say(g, CH_OLLIE, "Tiny! Best buddy!", 1.4f); return 1; }
         return 0;
-    case E_GATE:
+    case E_GATE: {
         if (e->state) return 0;
+        /* say what opens this particular gate */
+        int cond = COND_NONE;
+        for (int i = 0; i < g->ld->ngroup; i++) if (g->ld->group[i].gate == e->a) cond = g->ld->group[i].cond;
+        g->scene_after = cond;
         start_scene(g, SC_GATE_LOCKED);
         return 1;
+    }
     case E_LEVER:
         if (e->state) return 0;
         e->state = 1;
